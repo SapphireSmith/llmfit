@@ -1,0 +1,28 @@
+{
+  "name": "llmfit",
+  "version": "0.1.0",
+  "description": "Suggest open-source LLM models a user can run locally based on system specs.",
+  "type": "module",
+  "main": "./src/index.js",
+  "bin": {
+    "llmfit": "./bin/llmfit.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "README.md"
+  ],
+  "scripts": {
+    "check": "node ./bin/llmfit.js check",
+    "run": "node ./bin/llmfit.js run",
+    "test": "node --test"
+  },
+  "keywords": [
+    "llm",
+    "models",
+    "cli",
+    "system-specs",
+    "opensource"
+  ],
+  "license": "MIT"
+}
