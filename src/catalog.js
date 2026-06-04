@@ -1,56 +1,80 @@
-export const MODEL_CATALOG = [
+export const BUILT_IN_MODEL_CATALOG = [
   {
+    id: "meta-llama/Llama-3.2-1B-Instruct-GGUF",
     name: "Llama 3.2 1B Instruct",
+    provider: "builtin",
     params: "1B",
     quantization: "Q4_K_M",
     minimumRamGb: 4,
     recommendedRamGb: 8,
-    fitsLevel: "easy",
+    runtimeTags: ["gguf", "llama.cpp", "ollama"],
+    license: "llama",
+    sourceUrl: "https://huggingface.co/meta-llama/Llama-3.2-1B-Instruct-GGUF",
     notes: "Very lightweight. Good for basic experimentation and fast local runs."
   },
   {
+    id: "Qwen/Qwen2.5-3B-Instruct-GGUF",
     name: "Qwen2.5 3B Instruct",
+    provider: "builtin",
     params: "3B",
     quantization: "Q4_K_M",
     minimumRamGb: 6,
     recommendedRamGb: 8,
-    fitsLevel: "easy",
+    runtimeTags: ["gguf", "llama.cpp", "ollama"],
+    license: "apache-2.0",
+    sourceUrl: "https://huggingface.co/Qwen/Qwen2.5-3B-Instruct-GGUF",
     notes: "A solid small model for everyday prompting with modest hardware."
   },
   {
+    id: "meta-llama/Llama-3.1-8B-Instruct-GGUF",
     name: "Llama 3.1 8B Instruct",
+    provider: "builtin",
     params: "8B",
     quantization: "Q4_K_M",
     minimumRamGb: 12,
     recommendedRamGb: 16,
-    fitsLevel: "good",
+    runtimeTags: ["gguf", "llama.cpp", "ollama"],
+    license: "llama",
+    sourceUrl: "https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct-GGUF",
     notes: "Popular balance of quality and local usability for many laptops and desktops."
   },
   {
+    id: "mistralai/Mistral-7B-Instruct-v0.3-GGUF",
     name: "Mistral 7B Instruct v0.3",
+    provider: "builtin",
     params: "7B",
     quantization: "Q4_K_M",
     minimumRamGb: 12,
     recommendedRamGb: 16,
-    fitsLevel: "good",
+    runtimeTags: ["gguf", "llama.cpp", "ollama"],
+    license: "apache-2.0",
+    sourceUrl: "https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.3-GGUF",
     notes: "Strong general-purpose option for local use."
   },
   {
+    id: "Qwen/Qwen2.5-7B-Instruct-GGUF",
     name: "Qwen2.5 7B Instruct",
+    provider: "builtin",
     params: "7B",
     quantization: "Q4_K_M",
     minimumRamGb: 12,
     recommendedRamGb: 16,
-    fitsLevel: "good",
+    runtimeTags: ["gguf", "llama.cpp", "ollama"],
+    license: "apache-2.0",
+    sourceUrl: "https://huggingface.co/Qwen/Qwen2.5-7B-Instruct-GGUF",
     notes: "Good multilingual and coding-leaning option at the 7B size."
   },
   {
+    id: "meta-llama/Llama-3.1-14B-Instruct-GGUF",
     name: "Llama 3.1 14B Instruct",
+    provider: "builtin",
     params: "14B",
     quantization: "Q4_K_M",
     minimumRamGb: 24,
     recommendedRamGb: 32,
-    fitsLevel: "stretch",
+    runtimeTags: ["gguf", "llama.cpp", "ollama"],
+    license: "llama",
+    sourceUrl: "https://huggingface.co/meta-llama/Llama-3.1-14B-Instruct-GGUF",
     notes: "Better quality, but more demanding. Best on higher-memory systems."
   }
 ];

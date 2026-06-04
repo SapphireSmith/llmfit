@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { formatRecommendations, getSystemProfile, recommendModels } from "../src/index.js";
+import { formatRecommendations, loadRecommendations } from "../src/index.js";
 
 const command = process.argv[2] ?? "check";
 
@@ -9,7 +9,10 @@ if (!["check", "run"].includes(command)) {
   process.exit(1);
 }
 
-const profile = getSystemProfile();
-const recommendations = recommendModels(profile);
-
-console.log(formatRecommendations(profile, recommendations));
+try {
+  const { profile, registryInfo, recommendations } = await loadRecommendations();
+  console.log(formatRecommendations(profile, recommendations, registryInfo));
+} catch (error) {
+  console.error(`Unable to load model recommendations: ${error.message}`);
+  process.exit(1);
+}
