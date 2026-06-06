@@ -48,7 +48,7 @@ Suggested open-source models:
   Notes: Popular balance of quality and local usability for many laptops and desktops.
 ```
 
-## Next good steps
+## Next good steps TODO
 
 1. Add GPU and VRAM detection.
 2. Expand the model catalog with source links and sizes.
