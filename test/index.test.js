@@ -4,6 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { mkdtemp, mkdir, writeFile } from "node:fs/promises";
 import { formatRecommendations, loadRecommendations, recommendModels, detectRuntimeEnvironment } from "../src/index.js";
+import { createCliReporter, formatModelResults, formatProfileBlock, formatStatusMessage } from "../src/cli-ui.js";
 import {
   fetchLiveRegistry,
   getCacheFilePath,
@@ -308,4 +309,101 @@ test("fetchLiveRegistry rejects malformed API payloads", async () => {
     }),
     /unexpected payload/
   );
+});
+
+test("formatProfileBlock prints specs for the staged CLI intro", () => {
+  const output = formatProfileBlock({
+    platform: "win32",
+    arch: "x64",
+    cpuModel: "Test CPU",
+    cpuThreads: 8,
+    totalRamGb: 16,
+    freeRamGb: 10,
+    environmentNotes: []
+  });
+
+  assert.match(output, /Platform: win32 \(x64\)/);
+  assert.match(output, /RAM: 16 GB total, 10 GB free/);
+});
+
+test("formatModelResults prints a cleaner suitable models section", () => {
+  const output = formatModelResults(
+    {},
+    [
+      {
+        name: "Model A",
+        params: "7B",
+        quantization: "Q4_K_M",
+        minimumRamGb: 12,
+        recommendedRamGb: 16,
+        fit: "Recommended",
+        notes: "Example model"
+      }
+    ],
+    { source: "live" }
+  );
+
+  assert.match(output, /Source: Live registry/);
+  assert.match(output, /Suitable models/);
+  assert.match(output, /Fit: Recommended/);
+});
+
+test("formatStatusMessage returns user-friendly loader text", () => {
+  assert.match(formatStatusMessage({ type: "fetching-live" }), /Checking available models/);
+  assert.match(formatStatusMessage({ type: "using-cache" }), /Using cached model registry/);
+  assert.match(formatStatusMessage({ type: "builtin-ready" }), /built-in catalog/);
+});
+
+test("createCliReporter prints staged output without a tty", () => {
+  let stdoutText = "";
+  let stderrText = "";
+
+  const stdout = {
+    isTTY: false,
+    write(text) {
+      stdoutText += text;
+    }
+  };
+  const stderr = {
+    isTTY: false,
+    write(text) {
+      stderrText += text;
+    }
+  };
+
+  const reporter = createCliReporter({ stdout, stderr, colorEnabled: false });
+
+  reporter.printIntro({
+    platform: "win32",
+    arch: "x64",
+    cpuModel: "Test CPU",
+    cpuThreads: 8,
+    totalRamGb: 16,
+    freeRamGb: 10,
+    environmentNotes: []
+  });
+  reporter.startStatus({ type: "fetching-live" });
+  reporter.finishStatus({ type: "live-ready" });
+  reporter.printResults(
+    {},
+    [
+      {
+        name: "Model A",
+        params: "7B",
+        quantization: "Q4_K_M",
+        minimumRamGb: 12,
+        recommendedRamGb: 16,
+        fit: "Recommended",
+        notes: "Example model"
+      }
+    ],
+    { source: "live" }
+  );
+  reporter.printError("Example error");
+
+  assert.match(stdoutText, /LLMFit local model check/);
+  assert.match(stdoutText, /Checking available models/);
+  assert.match(stdoutText, /Found live model matches/);
+  assert.match(stdoutText, /Suitable models/);
+  assert.match(stderrText, /Example error/);
 });

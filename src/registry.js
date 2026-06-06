@@ -269,10 +269,12 @@ async function writeCachedRegistry(registry, { cacheFilePath = getCacheFilePath(
 
 export async function loadModelRegistry(options = {}) {
   const {
-    builtInModels = BUILT_IN_MODEL_CATALOG
+    builtInModels = BUILT_IN_MODEL_CATALOG,
+    onStatus
   } = options;
 
   try {
+    onStatus?.({ type: "fetching-live" });
     const liveRegistry = await fetchLiveRegistry(options);
 
     try {
@@ -281,16 +283,21 @@ export async function loadModelRegistry(options = {}) {
       // Cache persistence is best-effort; a live result should still be usable.
     }
 
+    onStatus?.({ type: "live-ready" });
     return liveRegistry;
   } catch {
     const cachedRegistry = await readCachedRegistry(options);
 
     if (cachedRegistry) {
+      onStatus?.({ type: "using-cache" });
+      onStatus?.({ type: "cache-ready" });
       return cachedRegistry;
     }
   }
 
   if (Array.isArray(builtInModels) && builtInModels.length > 0) {
+    onStatus?.({ type: "using-builtin" });
+    onStatus?.({ type: "builtin-ready" });
     return {
       source: "builtin",
       fetchedAt: null,

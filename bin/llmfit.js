@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
-import { formatRecommendations, loadRecommendations } from "../src/index.js";
+import { formatRecommendations, getSystemProfile, loadRecommendations } from "../src/index.js";
+import { createCliReporter } from "../src/cli-ui.js";
 
 const command = process.argv[2] ?? "check";
 
@@ -9,10 +10,33 @@ if (!["check", "run"].includes(command)) {
   process.exit(1);
 }
 
+const reporter = createCliReporter();
+
 try {
-  const { profile, registryInfo, recommendations } = await loadRecommendations();
-  console.log(formatRecommendations(profile, recommendations, registryInfo));
+  if (command === "run") {
+    const profile = getSystemProfile();
+    reporter.printIntro(profile);
+
+    const { registryInfo, recommendations } = await loadRecommendations({
+      profile,
+      registryOptions: {
+        onStatus(status) {
+          if (status.type.endsWith("-ready")) {
+            reporter.finishStatus(status);
+            return;
+          }
+
+          reporter.startStatus(status);
+        }
+      }
+    });
+
+    reporter.printResults(profile, recommendations, registryInfo);
+  } else {
+    const { profile, registryInfo, recommendations } = await loadRecommendations();
+    console.log(formatRecommendations(profile, recommendations, registryInfo));
+  }
 } catch (error) {
-  console.error(`Unable to load model recommendations: ${error.message}`);
+  reporter.printError(`Unable to load model recommendations: ${error.message}`);
   process.exit(1);
 }

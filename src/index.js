@@ -139,7 +139,7 @@ export function formatRecommendations(profile, recommendations, registryInfo = {
 }
 
 export async function loadRecommendations(options = {}) {
-  const profile = getSystemProfile(options.profileOverrides);
+  const profile = options.profile ?? getSystemProfile(options.profileOverrides);
   const registryInfo = await loadModelRegistry(options.registryOptions);
   const recommendations = recommendModels(profile, registryInfo.models);
 
