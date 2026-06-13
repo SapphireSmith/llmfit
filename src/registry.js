@@ -13,7 +13,8 @@ const HUGGING_FACE_QUERY = {
   direction: "-1",
   limit: "40",
   full: "true",
-  config: "true"
+  config: "true",
+  files_metadata: "true"
 };
 
 export function parseParameterCount(input) {
@@ -141,6 +142,76 @@ function getRuntimeTags(modelText) {
   return [...new Set(tags)];
 }
 
+export function estimateModelSizeGb(parameterCountB) {
+  if (parameterCountB <= 0 || Number.isNaN(parameterCountB)) {
+    return null;
+  }
+
+  if (parameterCountB <= 0.5) {
+    return 0.4;
+  }
+
+  if (parameterCountB <= 1) {
+    return 0.8;
+  }
+
+  if (parameterCountB <= 1.5) {
+    return 1.1;
+  }
+
+  if (parameterCountB <= 2) {
+    return 1.6;
+  }
+
+  if (parameterCountB <= 3) {
+    return 2.2;
+  }
+
+  if (parameterCountB <= 7) {
+    return 4.4;
+  }
+
+  if (parameterCountB <= 8) {
+    return 4.9;
+  }
+
+  if (parameterCountB <= 9) {
+    return 5.5;
+  }
+
+  if (parameterCountB <= 14) {
+    return 8.5;
+  }
+
+  return Math.round(((parameterCountB * 4.5) / 8) * 10) / 10;
+}
+
+export function extractSizeGb(model, quantization) {
+  if (!Array.isArray(model.siblings)) {
+    return null;
+  }
+
+  const normalizedQuant = quantization.toLowerCase().replaceAll("_", "");
+  const matchingSibling = model.siblings.find((sibling) => {
+    const filename = (sibling.rfilename || "").toLowerCase();
+    if (!filename.endsWith(".gguf")) {
+      return false;
+    }
+    if (normalizedQuant === "unknown") {
+      return true;
+    }
+    const normalizedFile = filename.replaceAll("-", "").replaceAll("_", "");
+    return normalizedFile.includes(normalizedQuant);
+  });
+
+  const sibling = matchingSibling || model.siblings.find((s) => (s.rfilename || "").toLowerCase().endsWith(".gguf"));
+  if (sibling && typeof sibling.size === "number" && sibling.size > 0) {
+    return Math.round((sibling.size / 1024 ** 3) * 10) / 10;
+  }
+
+  return null;
+}
+
 export function normalizeRemoteModel(model) {
   const modelText = getModelText(model);
 
@@ -155,12 +226,16 @@ export function normalizeRemoteModel(model) {
     return null;
   }
 
+  const quantization = extractQuantization(modelText);
+  const sizeGb = extractSizeGb(model, quantization) || estimateModelSizeGb(parameterCountB);
+
   return {
     id: model.id,
     name: toDisplayName(model),
     provider: "huggingface",
     params: formatParameterCount(parameterCountB),
-    quantization: extractQuantization(modelText),
+    quantization,
+    sizeGb,
     minimumRamGb: ramRequirements.minimumRamGb,
     recommendedRamGb: ramRequirements.recommendedRamGb,
     runtimeTags: getRuntimeTags(modelText),

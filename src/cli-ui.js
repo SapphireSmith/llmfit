@@ -114,10 +114,16 @@ export function formatModelResults(profile, recommendations, registryInfo, { col
   lines.push("");
 
   for (const model of recommendations) {
+    const sizeText = model.sizeGb ? `, ${model.sizeGb} GB` : "";
     lines.push(
-      `- ${model.name} ${dim(`(${model.params}, ${model.quantization})`, colorEnabled)}`,
+      `- ${model.name} ${dim(`(${model.params}, ${model.quantization}${sizeText})`, colorEnabled)}`,
       `  ${colorize("Fit", getFitColor(model.fit), colorEnabled)}: ${model.fit}`,
-      `  ${colorize("Needs", "cyan", colorEnabled)}: ${model.minimumRamGb}-${model.recommendedRamGb}+ GB RAM`,
+      `  ${colorize("Needs", "cyan", colorEnabled)}: ${model.minimumRamGb}-${model.recommendedRamGb}+ GB RAM`
+    );
+    if (model.sourceUrl) {
+      lines.push(`  ${colorize("Link", "cyan", colorEnabled)}: ${model.sourceUrl}`);
+    }
+    lines.push(
       `  ${colorize("Notes", "cyan", colorEnabled)}: ${model.notes}`,
       ""
     );

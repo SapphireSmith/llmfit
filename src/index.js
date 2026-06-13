@@ -143,10 +143,16 @@ export function formatRecommendations(profile, recommendations, registryInfo = {
   lines.push("");
 
   for (const model of recommendations) {
+    const sizeText = model.sizeGb ? `, ${model.sizeGb} GB` : "";
     lines.push(
-      `- ${model.name} (${model.params}, ${model.quantization})`,
+      `- ${model.name} (${model.params}, ${model.quantization}${sizeText})`,
       `  Fit: ${model.fit}`,
-      `  Needs: ${model.minimumRamGb}-${model.recommendedRamGb}+ GB RAM`,
+      `  Needs: ${model.minimumRamGb}-${model.recommendedRamGb}+ GB RAM`
+    );
+    if (model.sourceUrl) {
+      lines.push(`  Link: ${model.sourceUrl}`);
+    }
+    lines.push(
       `  Notes: ${model.notes}`,
       ""
     );

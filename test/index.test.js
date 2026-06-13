@@ -11,7 +11,9 @@ import {
   getCacheFilePath,
   inferRamRequirements,
   normalizeRemoteModel,
-  parseParameterCount
+  parseParameterCount,
+  estimateModelSizeGb,
+  extractSizeGb
 } from "../src/registry.js";
 
 test("recommendModels returns models that fit available RAM", () => {
@@ -75,6 +77,7 @@ test("normalizeRemoteModel keeps instruct-tuned local-friendly models", () => {
   assert.equal(normalized?.provider, "huggingface");
   assert.equal(normalized?.params, "3B");
   assert.equal(normalized?.quantization, "Q4_K_M");
+  assert.equal(normalized?.sizeGb, 2.2);
   assert.deepEqual(normalized?.runtimeTags, ["gguf", "llama.cpp", "ollama"]);
 });
 
@@ -574,4 +577,94 @@ test("formatProfileBlock includes colorized/non-colorized GPU details", () => {
 
   assert.match(outputColor, /GPU/);
   assert.match(outputColor, /NVIDIA RTX 4090/);
+});
+
+test("estimateModelSizeGb maps parameter bands accurately", () => {
+  assert.equal(estimateModelSizeGb(0.5), 0.4);
+  assert.equal(estimateModelSizeGb(1), 0.8);
+  assert.equal(estimateModelSizeGb(1.5), 1.1);
+  assert.equal(estimateModelSizeGb(3), 2.2);
+  assert.equal(estimateModelSizeGb(8), 4.9);
+  assert.equal(estimateModelSizeGb(14), 8.5);
+  assert.equal(estimateModelSizeGb(20), 11.3);
+});
+
+test("extractSizeGb extracts from matching sibling", () => {
+  const model = {
+    siblings: [
+      { rfilename: "model-Q4_K_M.gguf", size: 2147483648 },
+      { rfilename: "model-Q8_0.gguf", size: 4294967296 }
+    ]
+  };
+  assert.equal(extractSizeGb(model, "Q4_K_M"), 2.0);
+  assert.equal(extractSizeGb(model, "Q8_0"), 4.0);
+  assert.equal(extractSizeGb(model, "Q2_K"), 2.0);
+});
+
+test("normalizeRemoteModel parses and assigns sizes and links", () => {
+  const normalized = normalizeRemoteModel({
+    id: "Qwen/Qwen2.5-3B-Instruct-GGUF",
+    tags: ["license:apache-2.0", "gguf"],
+    siblings: [
+      { rfilename: "Qwen2.5-3B-Instruct-Q4_K_M.gguf", size: 2362232012 }
+    ]
+  });
+  assert.equal(normalized?.sizeGb, 2.2);
+  assert.equal(normalized?.sourceUrl, "https://huggingface.co/Qwen/Qwen2.5-3B-Instruct-GGUF");
+});
+
+test("formatRecommendations formatting includes size and link", () => {
+  const output = formatRecommendations(
+    {
+      platform: "win32",
+      arch: "x64",
+      cpuModel: "Test CPU",
+      cpuThreads: 8,
+      totalRamGb: 16,
+      freeRamGb: 10,
+      environmentNotes: [],
+      gpus: []
+    },
+    [
+      {
+        name: "Model A",
+        params: "7B",
+        quantization: "Q4_K_M",
+        sizeGb: 4.4,
+        minimumRamGb: 12,
+        recommendedRamGb: 16,
+        fit: "Recommended",
+        sourceUrl: "https://huggingface.co/model-a",
+        notes: "Example model"
+      }
+    ],
+    { source: "live" }
+  );
+
+  assert.match(output, /Model A \(7B, Q4_K_M, 4.4 GB\)/);
+  assert.match(output, /Link: https:\/\/huggingface\.co\/model-a/);
+});
+
+test("formatModelResults formatting includes size and link", () => {
+  const output = formatModelResults(
+    {},
+    [
+      {
+        name: "Model A",
+        params: "7B",
+        quantization: "Q4_K_M",
+        sizeGb: 4.4,
+        minimumRamGb: 12,
+        recommendedRamGb: 16,
+        fit: "Recommended",
+        sourceUrl: "https://huggingface.co/model-a",
+        notes: "Example model"
+      }
+    ],
+    { source: "live" },
+    { colorEnabled: false }
+  );
+
+  assert.match(output, /Model A \(7B, Q4_K_M, 4.4 GB\)/);
+  assert.match(output, /Link: https:\/\/huggingface\.co\/model-a/);
 });
