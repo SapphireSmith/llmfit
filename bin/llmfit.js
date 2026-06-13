@@ -2,6 +2,7 @@
 
 import { formatRecommendations, getSystemProfile, loadRecommendations } from "../src/index.js";
 import { createCliReporter } from "../src/cli-ui.js";
+import { detectGpus } from "../src/gpu.js";
 
 const command = process.argv[2] ?? "check";
 
@@ -15,6 +16,7 @@ const reporter = createCliReporter();
 try {
   if (command === "run") {
     const profile = getSystemProfile();
+    profile.gpus = await detectGpus({ platform: profile.platform });
     reporter.printIntro(profile);
 
     const { registryInfo, recommendations } = await loadRecommendations({
