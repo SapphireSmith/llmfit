@@ -1,6 +1,7 @@
 import os from "node:os";
 import { BUILT_IN_MODEL_CATALOG } from "./catalog.js";
 import { loadModelRegistry } from "./registry.js";
+import { detectGpus } from "./gpu.js";
 
 function bytesToGb(bytes) {
   return Math.round((bytes / 1024 ** 3) * 10) / 10;
@@ -106,9 +107,25 @@ export function formatRecommendations(profile, recommendations, registryInfo = {
     `Platform: ${profile.platform} (${profile.arch})`,
     `CPU: ${profile.cpuModel}`,
     `Threads: ${profile.cpuThreads}`,
-    `RAM: ${profile.totalRamGb} GB total, ${profile.freeRamGb} GB free`,
-    `Source: ${formatSourceLine(registryInfo)}`
+    `RAM: ${profile.totalRamGb} GB total, ${profile.freeRamGb} GB free`
   ];
+
+  if (Array.isArray(profile.gpus) && profile.gpus.length > 0) {
+    if (profile.gpus.length === 1) {
+      const gpu = profile.gpus[0];
+      const vramText = gpu.vramGb !== null ? ` (${gpu.vramGb} GB VRAM)` : "";
+      lines.push(`GPU: ${gpu.model}${vramText}`);
+    } else {
+      profile.gpus.forEach((gpu, index) => {
+        const vramText = gpu.vramGb !== null ? ` (${gpu.vramGb} GB VRAM)` : "";
+        lines.push(`GPU ${index + 1}: ${gpu.model}${vramText}`);
+      });
+    }
+  } else {
+    lines.push("GPU: None detected");
+  }
+
+  lines.push(`Source: ${formatSourceLine(registryInfo)}`);
 
   for (const note of profile.environmentNotes ?? []) {
     lines.push(`Note: ${note}`);
@@ -126,10 +143,16 @@ export function formatRecommendations(profile, recommendations, registryInfo = {
   lines.push("");
 
   for (const model of recommendations) {
+    const sizeText = model.sizeGb ? `, ${model.sizeGb} GB` : "";
     lines.push(
-      `- ${model.name} (${model.params}, ${model.quantization})`,
+      `- ${model.name} (${model.params}, ${model.quantization}${sizeText})`,
       `  Fit: ${model.fit}`,
-      `  Needs: ${model.minimumRamGb}-${model.recommendedRamGb}+ GB RAM`,
+      `  Needs: ${model.minimumRamGb}-${model.recommendedRamGb}+ GB RAM`
+    );
+    if (model.sourceUrl) {
+      lines.push(`  Link: ${model.sourceUrl}`);
+    }
+    lines.push(
       `  Notes: ${model.notes}`,
       ""
     );
@@ -139,7 +162,11 @@ export function formatRecommendations(profile, recommendations, registryInfo = {
 }
 
 export async function loadRecommendations(options = {}) {
-  const profile = options.profile ?? getSystemProfile(options.profileOverrides);
+  const profileOverrides = options.profileOverrides ?? {};
+  const profile = options.profile ?? {
+    ...getSystemProfile(profileOverrides),
+    gpus: profileOverrides.gpus ?? await detectGpus({ platform: profileOverrides.platform })
+  };
   const registryInfo = await loadModelRegistry(options.registryOptions);
   const recommendations = recommendModels(profile, registryInfo.models);
 

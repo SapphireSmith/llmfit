@@ -75,6 +75,21 @@ export function formatProfileBlock(profile, { colorEnabled = false } = {}) {
     `${colorize("RAM", "cyan", colorEnabled)}: ${profile.totalRamGb} GB total, ${profile.freeRamGb} GB free`
   ];
 
+  if (Array.isArray(profile.gpus) && profile.gpus.length > 0) {
+    if (profile.gpus.length === 1) {
+      const gpu = profile.gpus[0];
+      const vramText = gpu.vramGb !== null ? ` (${gpu.vramGb} GB VRAM)` : "";
+      lines.push(`${colorize("GPU", "cyan", colorEnabled)}: ${gpu.model}${vramText}`);
+    } else {
+      profile.gpus.forEach((gpu, index) => {
+        const vramText = gpu.vramGb !== null ? ` (${gpu.vramGb} GB VRAM)` : "";
+        lines.push(`${colorize(`GPU ${index + 1}`, "cyan", colorEnabled)}: ${gpu.model}${vramText}`);
+      });
+    }
+  } else {
+    lines.push(`${colorize("GPU", "cyan", colorEnabled)}: None detected`);
+  }
+
   for (const note of profile.environmentNotes ?? []) {
     lines.push(`${colorize("Note", "yellow", colorEnabled)}: ${note}`);
   }
@@ -99,10 +114,16 @@ export function formatModelResults(profile, recommendations, registryInfo, { col
   lines.push("");
 
   for (const model of recommendations) {
+    const sizeText = model.sizeGb ? `, ${model.sizeGb} GB` : "";
     lines.push(
-      `- ${model.name} ${dim(`(${model.params}, ${model.quantization})`, colorEnabled)}`,
+      `- ${model.name} ${dim(`(${model.params}, ${model.quantization}${sizeText})`, colorEnabled)}`,
       `  ${colorize("Fit", getFitColor(model.fit), colorEnabled)}: ${model.fit}`,
-      `  ${colorize("Needs", "cyan", colorEnabled)}: ${model.minimumRamGb}-${model.recommendedRamGb}+ GB RAM`,
+      `  ${colorize("Needs", "cyan", colorEnabled)}: ${model.minimumRamGb}-${model.recommendedRamGb}+ GB RAM`
+    );
+    if (model.sourceUrl) {
+      lines.push(`  ${colorize("Link", "cyan", colorEnabled)}: ${model.sourceUrl}`);
+    }
+    lines.push(
       `  ${colorize("Notes", "cyan", colorEnabled)}: ${model.notes}`,
       ""
     );
