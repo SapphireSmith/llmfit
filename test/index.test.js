@@ -668,3 +668,56 @@ test("formatModelResults formatting includes size and link", () => {
   assert.match(output, /Model A \(7B, Q4_K_M, 4.4 GB\)/);
   assert.match(output, /Link: https:\/\/huggingface\.co\/model-a/);
 });
+
+test("createCliReporter in jsonMode routes status logging to stderr and skips intro/results", () => {
+  let stdoutText = "";
+  let stderrText = "";
+
+  const stdout = {
+    isTTY: false,
+    write(text) {
+      stdoutText += text;
+    }
+  };
+  const stderr = {
+    isTTY: false,
+    write(text) {
+      stderrText += text;
+    }
+  };
+
+  const reporter = createCliReporter({ stdout, stderr, colorEnabled: false, jsonMode: true });
+
+  reporter.printIntro({
+    platform: "win32",
+    arch: "x64",
+    cpuModel: "Test CPU",
+    cpuThreads: 8,
+    totalRamGb: 16,
+    freeRamGb: 10,
+    environmentNotes: []
+  });
+
+  reporter.startStatus({ type: "fetching-live" });
+  reporter.finishStatus({ type: "live-ready" });
+
+  reporter.printResults(
+    {},
+    [
+      {
+        name: "Model A",
+        params: "7B",
+        quantization: "Q4_K_M",
+        minimumRamGb: 12,
+        recommendedRamGb: 16,
+        fit: "Recommended",
+        notes: "Example model"
+      }
+    ],
+    { source: "live" }
+  );
+
+  assert.equal(stdoutText, "");
+  assert.match(stderrText, /Checking available models/);
+  assert.match(stderrText, /Found live model matches/);
+});
