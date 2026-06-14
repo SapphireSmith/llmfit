@@ -154,35 +154,45 @@ export function formatStatusMessage(status, { colorEnabled = false } = {}) {
 export function createCliReporter({
   stdout = process.stdout,
   stderr = process.stderr,
-  colorEnabled = supportsColor(stdout)
+  colorEnabled = supportsColor(stdout),
+  jsonMode = false
 } = {}) {
-  const interactive = Boolean(stdout?.isTTY);
+  const interactive = jsonMode ? Boolean(stderr?.isTTY) : Boolean(stdout?.isTTY);
   const spinnerFrames = ["|", "/", "-", "\\"];
   let spinnerTimer = null;
   let spinnerIndex = 0;
   let spinnerText = "";
 
   function writeLine(text = "") {
-    stdout.write(`${text}\n`);
+    if (jsonMode) {
+      stderr.write(`${text}\n`);
+    } else {
+      stdout.write(`${text}\n`);
+    }
   }
 
   function clearSpinner() {
     if (interactive && spinnerTimer !== null) {
       clearInterval(spinnerTimer);
       spinnerTimer = null;
-      stdout.write("\r\x1b[2K");
+      const target = jsonMode ? stderr : stdout;
+      target.write("\r\x1b[2K");
     }
   }
 
   function renderSpinnerFrame() {
     const frame = spinnerFrames[spinnerIndex % spinnerFrames.length];
     spinnerIndex += 1;
-    stdout.write(`\r${colorize(frame, "blue", colorEnabled)} ${spinnerText}`);
+    const target = jsonMode ? stderr : stdout;
+    target.write(`\r${colorize(frame, "blue", colorEnabled)} ${spinnerText}`);
   }
 
   return {
     colorEnabled,
     printIntro(profile) {
+      if (jsonMode) {
+        return;
+      }
       writeLine(formatProfileBlock(profile, { colorEnabled }));
       writeLine("");
     },
@@ -215,6 +225,9 @@ export function createCliReporter({
       writeLine("");
     },
     printResults(profile, recommendations, registryInfo) {
+      if (jsonMode) {
+        return;
+      }
       writeLine(formatModelResults(profile, recommendations, registryInfo, { colorEnabled }));
     },
     printError(message) {

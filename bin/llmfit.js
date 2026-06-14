@@ -11,7 +11,8 @@ if (!["check", "run"].includes(command)) {
   process.exit(1);
 }
 
-const reporter = createCliReporter();
+const hasJsonFlag = process.argv.includes("--json");
+const reporter = createCliReporter({ jsonMode: hasJsonFlag });
 
 try {
   if (command === "run") {
@@ -33,10 +34,34 @@ try {
       }
     });
 
-    reporter.printResults(profile, recommendations, registryInfo);
+    if (hasJsonFlag) {
+      const output = {
+        profile,
+        registry: {
+          source: registryInfo.source,
+          fetchedAt: registryInfo.fetchedAt
+        },
+        recommendations
+      };
+      console.log(JSON.stringify(output, null, 2));
+    } else {
+      reporter.printResults(profile, recommendations, registryInfo);
+    }
   } else {
     const { profile, registryInfo, recommendations } = await loadRecommendations();
-    console.log(formatRecommendations(profile, recommendations, registryInfo));
+    if (hasJsonFlag) {
+      const output = {
+        profile,
+        registry: {
+          source: registryInfo.source,
+          fetchedAt: registryInfo.fetchedAt
+        },
+        recommendations
+      };
+      console.log(JSON.stringify(output, null, 2));
+    } else {
+      console.log(formatRecommendations(profile, recommendations, registryInfo));
+    }
   }
 } catch (error) {
   reporter.printError(`Unable to load model recommendations: ${error.message}`);
