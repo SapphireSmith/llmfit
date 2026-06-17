@@ -97,6 +97,18 @@ export function formatProfileBlock(profile, { colorEnabled = false } = {}) {
   return lines.join("\n");
 }
 
+function formatProviders(tags) {
+  if (!Array.isArray(tags) || tags.length === 0) return "";
+  const providerMap = {
+    "ollama": "Ollama",
+    "llama.cpp": "llama.cpp",
+    "lm-studio": "LM Studio",
+    "mlx": "MLX"
+  };
+  const providers = tags.map(tag => providerMap[tag]).filter(Boolean);
+  return providers.length > 0 ? providers.join(", ") : "";
+}
+
 export function formatModelResults(profile, recommendations, registryInfo, { colorEnabled = false } = {}) {
   const lines = [
     `${colorize("Source", "blue", colorEnabled)}: ${formatSourceText(registryInfo)}`
@@ -120,6 +132,10 @@ export function formatModelResults(profile, recommendations, registryInfo, { col
       `  ${colorize("Fit", getFitColor(model.fit), colorEnabled)}: ${model.fit}`,
       `  ${colorize("Needs", "cyan", colorEnabled)}: ${model.minimumRamGb}-${model.recommendedRamGb}+ GB RAM`
     );
+    const providersText = formatProviders(model.runtimeTags);
+    if (providersText) {
+      lines.push(`  ${colorize("Providers", "cyan", colorEnabled)}: ${providersText}`);
+    }
     if (model.sourceUrl) {
       lines.push(`  ${colorize("Link", "cyan", colorEnabled)}: ${model.sourceUrl}`);
     }
