@@ -8,7 +8,7 @@ export const BUILT_IN_MODEL_CATALOG = [
     sizeGb: 0.4,
     minimumRamGb: 4,
     recommendedRamGb: 8,
-    runtimeTags: ["gguf", "llama.cpp", "ollama"],
+    runtimeTags: ["gguf", "llama.cpp", "ollama", "lm-studio"],
     license: "apache-2.0",
     sourceUrl: "https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF",
     notes: "Incredibly small. Perfect for tiny machines, resource-constrained tasks, or fast testing."
@@ -22,7 +22,7 @@ export const BUILT_IN_MODEL_CATALOG = [
     sizeGb: 0.8,
     minimumRamGb: 4,
     recommendedRamGb: 8,
-    runtimeTags: ["gguf", "llama.cpp", "ollama"],
+    runtimeTags: ["gguf", "llama.cpp", "ollama", "lm-studio"],
     license: "llama",
     sourceUrl: "https://huggingface.co/meta-llama/Llama-3.2-1B-Instruct-GGUF",
     notes: "Very lightweight. Good for basic experimentation and fast local runs."
@@ -36,7 +36,7 @@ export const BUILT_IN_MODEL_CATALOG = [
     sizeGb: 1.1,
     minimumRamGb: 6,
     recommendedRamGb: 8,
-    runtimeTags: ["gguf", "llama.cpp", "ollama"],
+    runtimeTags: ["gguf", "llama.cpp", "ollama", "lm-studio"],
     license: "apache-2.0",
     sourceUrl: "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF",
     notes: "Great lightweight agentic model with good balance of speed and logic capabilities."
@@ -50,7 +50,7 @@ export const BUILT_IN_MODEL_CATALOG = [
     sizeGb: 1.6,
     minimumRamGb: 6,
     recommendedRamGb: 8,
-    runtimeTags: ["gguf", "llama.cpp", "ollama"],
+    runtimeTags: ["gguf", "llama.cpp", "ollama", "lm-studio"],
     license: "gemma",
     sourceUrl: "https://huggingface.co/google/gemma-2-2b-it-GGUF",
     notes: "Class-leading quality at the 2B size range."
@@ -64,7 +64,7 @@ export const BUILT_IN_MODEL_CATALOG = [
     sizeGb: 2.0,
     minimumRamGb: 6,
     recommendedRamGb: 8,
-    runtimeTags: ["gguf", "llama.cpp", "ollama"],
+    runtimeTags: ["gguf", "llama.cpp", "ollama", "lm-studio"],
     license: "llama",
     sourceUrl: "https://huggingface.co/meta-llama/Llama-3.2-3B-Instruct-GGUF",
     notes: "Excellent small-size generalist model from Meta."
@@ -78,7 +78,7 @@ export const BUILT_IN_MODEL_CATALOG = [
     sizeGb: 2.2,
     minimumRamGb: 6,
     recommendedRamGb: 8,
-    runtimeTags: ["gguf", "llama.cpp", "ollama"],
+    runtimeTags: ["gguf", "llama.cpp", "ollama", "lm-studio"],
     license: "apache-2.0",
     sourceUrl: "https://huggingface.co/Qwen/Qwen2.5-3B-Instruct-GGUF",
     notes: "A solid small model for everyday prompting with modest hardware."
@@ -92,7 +92,7 @@ export const BUILT_IN_MODEL_CATALOG = [
     sizeGb: 4.4,
     minimumRamGb: 12,
     recommendedRamGb: 16,
-    runtimeTags: ["gguf", "llama.cpp", "ollama"],
+    runtimeTags: ["gguf", "llama.cpp", "ollama", "lm-studio"],
     license: "apache-2.0",
     sourceUrl: "https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.3-GGUF",
     notes: "Strong general-purpose option for local use."
@@ -106,7 +106,7 @@ export const BUILT_IN_MODEL_CATALOG = [
     sizeGb: 4.7,
     minimumRamGb: 12,
     recommendedRamGb: 16,
-    runtimeTags: ["gguf", "llama.cpp", "ollama"],
+    runtimeTags: ["gguf", "llama.cpp", "ollama", "lm-studio"],
     license: "apache-2.0",
     sourceUrl: "https://huggingface.co/Qwen/Qwen2.5-7B-Instruct-GGUF",
     notes: "Good multilingual and coding-leaning option at the 7B size."
@@ -120,7 +120,7 @@ export const BUILT_IN_MODEL_CATALOG = [
     sizeGb: 4.9,
     minimumRamGb: 12,
     recommendedRamGb: 16,
-    runtimeTags: ["gguf", "llama.cpp", "ollama"],
+    runtimeTags: ["gguf", "llama.cpp", "ollama", "lm-studio"],
     license: "llama",
     sourceUrl: "https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct-GGUF",
     notes: "Popular balance of quality and local usability for many laptops and desktops."
@@ -134,7 +134,7 @@ export const BUILT_IN_MODEL_CATALOG = [
     sizeGb: 5.5,
     minimumRamGb: 12,
     recommendedRamGb: 16,
-    runtimeTags: ["gguf", "llama.cpp", "ollama"],
+    runtimeTags: ["gguf", "llama.cpp", "ollama", "lm-studio"],
     license: "gemma",
     sourceUrl: "https://huggingface.co/google/gemma-2-9b-it-GGUF",
     notes: "Highly capable model with performance rivaling larger models."
@@ -148,7 +148,7 @@ export const BUILT_IN_MODEL_CATALOG = [
     sizeGb: 8.5,
     minimumRamGb: 24,
     recommendedRamGb: 32,
-    runtimeTags: ["gguf", "llama.cpp", "ollama"],
+    runtimeTags: ["gguf", "llama.cpp", "ollama", "lm-studio"],
     license: "llama",
     sourceUrl: "https://huggingface.co/meta-llama/Llama-3.1-14B-Instruct-GGUF",
     notes: "Better quality, but more demanding. Best on higher-memory systems."

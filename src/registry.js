@@ -135,6 +135,10 @@ function getRuntimeTags(modelText) {
     tags.push("ollama");
   }
 
+  if (/lm-studio/i.test(modelText) || /gguf/i.test(modelText)) {
+    tags.push("lm-studio");
+  }
+
   if (/mlx/i.test(modelText)) {
     tags.push("mlx");
   }

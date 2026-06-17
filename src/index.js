@@ -100,6 +100,18 @@ function getNoMatchMessage(registryInfo) {
   return "No matches found in the available model registry for this machine.";
 }
 
+function formatProviders(tags) {
+  if (!Array.isArray(tags) || tags.length === 0) return "";
+  const providerMap = {
+    "ollama": "Ollama",
+    "llama.cpp": "llama.cpp",
+    "lm-studio": "LM Studio",
+    "mlx": "MLX"
+  };
+  const providers = tags.map(tag => providerMap[tag]).filter(Boolean);
+  return providers.length > 0 ? providers.join(", ") : "";
+}
+
 export function formatRecommendations(profile, recommendations, registryInfo = { source: "builtin" }) {
   const lines = [
     "LLMFit local model check",
@@ -149,6 +161,10 @@ export function formatRecommendations(profile, recommendations, registryInfo = {
       `  Fit: ${model.fit}`,
       `  Needs: ${model.minimumRamGb}-${model.recommendedRamGb}+ GB RAM`
     );
+    const providersText = formatProviders(model.runtimeTags);
+    if (providersText) {
+      lines.push(`  Providers: ${providersText}`);
+    }
     if (model.sourceUrl) {
       lines.push(`  Link: ${model.sourceUrl}`);
     }
