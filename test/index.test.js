@@ -78,7 +78,7 @@ test("normalizeRemoteModel keeps instruct-tuned local-friendly models", () => {
   assert.equal(normalized?.params, "3B");
   assert.equal(normalized?.quantization, "Q4_K_M");
   assert.equal(normalized?.sizeGb, 2.2);
-  assert.deepEqual(normalized?.runtimeTags, ["gguf", "llama.cpp", "ollama"]);
+  assert.deepEqual(normalized?.runtimeTags, ["gguf", "llama.cpp", "ollama", "lm-studio"]);
 });
 
 test("normalizeRemoteModel skips ambiguous remote entries", () => {
@@ -613,7 +613,7 @@ test("normalizeRemoteModel parses and assigns sizes and links", () => {
   assert.equal(normalized?.sourceUrl, "https://huggingface.co/Qwen/Qwen2.5-3B-Instruct-GGUF");
 });
 
-test("formatRecommendations formatting includes size and link", () => {
+test("formatRecommendations formatting includes size, link, and providers", () => {
   const output = formatRecommendations(
     {
       platform: "win32",
@@ -634,6 +634,7 @@ test("formatRecommendations formatting includes size and link", () => {
         minimumRamGb: 12,
         recommendedRamGb: 16,
         fit: "Recommended",
+        runtimeTags: ["gguf", "ollama", "lm-studio"],
         sourceUrl: "https://huggingface.co/model-a",
         notes: "Example model"
       }
@@ -642,10 +643,11 @@ test("formatRecommendations formatting includes size and link", () => {
   );
 
   assert.match(output, /Model A \(7B, Q4_K_M, 4.4 GB\)/);
+  assert.match(output, /Providers: Ollama, LM Studio/);
   assert.match(output, /Link: https:\/\/huggingface\.co\/model-a/);
 });
 
-test("formatModelResults formatting includes size and link", () => {
+test("formatModelResults formatting includes size, link, and providers", () => {
   const output = formatModelResults(
     {},
     [
@@ -657,6 +659,7 @@ test("formatModelResults formatting includes size and link", () => {
         minimumRamGb: 12,
         recommendedRamGb: 16,
         fit: "Recommended",
+        runtimeTags: ["gguf", "ollama", "lm-studio"],
         sourceUrl: "https://huggingface.co/model-a",
         notes: "Example model"
       }
@@ -666,6 +669,7 @@ test("formatModelResults formatting includes size and link", () => {
   );
 
   assert.match(output, /Model A \(7B, Q4_K_M, 4.4 GB\)/);
+  assert.match(output, /Providers: Ollama, LM Studio/);
   assert.match(output, /Link: https:\/\/huggingface\.co\/model-a/);
 });
 
