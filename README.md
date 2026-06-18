@@ -48,9 +48,4 @@ Suggested open-source models:
   Notes: Popular balance of quality and local usability for many laptops and desktops.
 ```
 
-## Next good steps TODO
 
-1. Add GPU and VRAM detection.
-2. Expand the model catalog with source links and sizes.
-3. Add output formats like JSON for app integrations.
-4. Add provider-specific recommendations for Ollama, LM Studio, or llama.cpp.
