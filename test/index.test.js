@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { mkdtemp, mkdir, writeFile } from "node:fs/promises";
 import { formatRecommendations, loadRecommendations, recommendModels, detectRuntimeEnvironment } from "../src/index.js";
-import { createCliReporter, formatModelResults, formatProfileBlock, formatStatusMessage } from "../src/cli-ui.js";
+import { createCliReporter, formatModelResults, formatProfileBlock, formatStatusMessage, formatHelpMenu } from "../src/cli-ui.js";
 import { detectGpus } from "../src/gpu.js";
 import {
   fetchLiveRegistry,
@@ -724,4 +724,43 @@ test("createCliReporter in jsonMode routes status logging to stderr and skips in
   assert.equal(stdoutText, "");
   assert.match(stderrText, /Checking available models/);
   assert.match(stderrText, /Found live model matches/);
+});
+
+test("formatHelpMenu outputs a formatted help menu", () => {
+  const output = formatHelpMenu({ colorEnabled: false });
+  assert.match(output, /Usage: llmfit \[command\] \[options\]/);
+  assert.match(output, /check\s+Run local hardware diagnostics/);
+  assert.match(output, /--json\s+Output response as structured JSON/);
+});
+
+test("createCliReporter.printHelp outputs help text in default mode", () => {
+  let stdoutText = "";
+  const stdout = {
+    isTTY: false,
+    write(text) {
+      stdoutText += text;
+    }
+  };
+  const reporter = createCliReporter({ stdout, colorEnabled: false, jsonMode: false });
+  reporter.printHelp();
+
+  assert.match(stdoutText, /Usage: llmfit/);
+  assert.match(stdoutText, /check/);
+});
+
+test("createCliReporter.printHelp outputs JSON structure in jsonMode", () => {
+  let stderrText = "";
+  const stderr = {
+    isTTY: false,
+    write(text) {
+      stderrText += text;
+    }
+  };
+  const reporter = createCliReporter({ stderr, colorEnabled: false, jsonMode: true });
+  reporter.printHelp();
+
+  const parsed = JSON.parse(stderrText);
+  assert.equal(parsed.usage, "llmfit [command] [options]");
+  assert.ok(parsed.commands.check);
+  assert.ok(parsed.options["--json"]);
 });

@@ -49,3 +49,13 @@ Suggested open-source models:
 ```
 
 
+
+## TODO
+
+- [x] Support `llmfit --help`, `llmfit -h`, and `llmfit help` to display a styled command usage guide.
+- [ ] Unify `check` and `run` CLI logic so that `check` (default) is the single unified diagnostics and recommendation tool.
+- [ ] Support `--offline` / `--local` flags to bypass live fetches and load recommendations instantly.
+- [ ] Support `--simulate-ram <gb>` and `--simulate-vram <gb>` overrides to test future hardware configurations.
+- [ ] Add `llmfit system` command to output only the hardware diagnostic profile.
+- [ ] Add `llmfit models` command to list all models from the catalog/registry with color-coded fit status.
+- [ ] Add `llmfit explain <model-query>` to show a detailed compatibility explanation for a specific model.
