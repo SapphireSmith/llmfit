@@ -167,6 +167,32 @@ export function formatStatusMessage(status, { colorEnabled = false } = {}) {
   }
 }
 
+export function formatHelpMenu({ colorEnabled = false } = {}) {
+  const title = emphasize("Usage", colorEnabled);
+  const cmdTitle = emphasize("Commands", colorEnabled);
+  const optTitle = emphasize("Options", colorEnabled);
+
+  const lines = [
+    `${title}: llmfit [command] [options]`,
+    "",
+    cmdTitle + ":",
+    `  ${colorize("check", "cyan", colorEnabled)}                  Run local hardware diagnostics and suggest matching models. (Default)`,
+    `  ${colorize("system", "cyan", colorEnabled)}                 Show current hardware profile and diagnostic info.`,
+    `  ${colorize("models", "cyan", colorEnabled)}                 List all known models in the catalog/registry with fit status.`,
+    `  ${colorize("explain <model-query>", "cyan", colorEnabled)}  Explain memory details and compatibility of a specific model.`,
+    `  ${colorize("help", "cyan", colorEnabled)}                   Show this help menu.`,
+    "",
+    optTitle + ":",
+    `  ${colorize("--json", "cyan", colorEnabled)}                 Output response as structured JSON.`,
+    `  ${colorize("--offline, --local", "cyan", colorEnabled)}     Skip fetching from Hugging Face live API; use cache/builtin catalog.`,
+    `  ${colorize("--simulate-ram <gb>", "cyan", colorEnabled)}    Run diagnostics simulating a different RAM size (e.g. --simulate-ram 32).`,
+    `  ${colorize("--simulate-vram <gb>", "cyan", colorEnabled)}   Run diagnostics simulating a different VRAM size (e.g. --simulate-vram 16).`,
+    ""
+  ];
+
+  return lines.join("\n");
+}
+
 export function createCliReporter({
   stdout = process.stdout,
   stderr = process.stderr,
@@ -249,6 +275,9 @@ export function createCliReporter({
     printError(message) {
       clearSpinner();
       stderr.write(`${colorize(message, "red", colorEnabled)}\n`);
+    },
+    printHelp() {
+      writeLine(formatHelpMenu({ colorEnabled }));
     }
   };
 }

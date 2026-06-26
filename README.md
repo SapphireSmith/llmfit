@@ -52,7 +52,7 @@ Suggested open-source models:
 
 ## TODO
 
-- [ ] Support `llmfit --help`, `llmfit -h`, and `llmfit help` to display a styled command usage guide.
+- [/] Support `llmfit --help`, `llmfit -h`, and `llmfit help` to display a styled command usage guide.
 - [ ] Unify `check` and `run` CLI logic so that `check` (default) is the single unified diagnostics and recommendation tool.
 - [ ] Support `--offline` / `--local` flags to bypass live fetches and load recommendations instantly.
 - [ ] Support `--simulate-ram <gb>` and `--simulate-vram <gb>` overrides to test future hardware configurations.
