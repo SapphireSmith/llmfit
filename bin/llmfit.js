@@ -4,15 +4,22 @@ import { formatRecommendations, getSystemProfile, loadRecommendations } from "..
 import { createCliReporter } from "../src/cli-ui.js";
 import { detectGpus } from "../src/gpu.js";
 
-const command = process.argv[2] ?? "check";
+const args = process.argv.slice(2);
+const hasHelpFlag = args.includes("--help") || args.includes("-h") || args[0] === "help";
+const hasJsonFlag = args.includes("--json");
+const reporter = createCliReporter({ jsonMode: hasJsonFlag });
+
+if (hasHelpFlag) {
+  reporter.printHelp();
+  process.exit(0);
+}
+
+const command = args[0] ?? "check";
 
 if (!["check", "run"].includes(command)) {
   console.error(`Unknown command "${command}". Use "llmfit check" or "llmfit run".`);
   process.exit(1);
 }
-
-const hasJsonFlag = process.argv.includes("--json");
-const reporter = createCliReporter({ jsonMode: hasJsonFlag });
 
 try {
   if (command === "run") {

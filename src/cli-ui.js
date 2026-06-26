@@ -277,7 +277,26 @@ export function createCliReporter({
       stderr.write(`${colorize(message, "red", colorEnabled)}\n`);
     },
     printHelp() {
-      writeLine(formatHelpMenu({ colorEnabled }));
+      if (jsonMode) {
+        stderr.write(JSON.stringify({
+          usage: "llmfit [command] [options]",
+          commands: {
+            check: "Run local hardware diagnostics and suggest matching models. (Default)",
+            system: "Show current hardware profile and diagnostic info.",
+            models: "List all known models in the catalog/registry with fit status.",
+            explain: "Explain memory details and compatibility of a specific model.",
+            help: "Show this help menu."
+          },
+          options: {
+            "--json": "Output response as structured JSON.",
+            "--offline, --local": "Skip fetching from Hugging Face live API; use cache/builtin catalog.",
+            "--simulate-ram <gb>": "Run diagnostics simulating a different RAM size (e.g. --simulate-ram 32).",
+            "--simulate-vram <gb>": "Run diagnostics simulating a different VRAM size (e.g. --simulate-vram 16)."
+          }
+        }, null, 2) + "\n");
+      } else {
+        writeLine(formatHelpMenu({ colorEnabled }));
+      }
     }
   };
 }
