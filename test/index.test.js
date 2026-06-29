@@ -2,6 +2,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import os from "node:os";
 import path from "node:path";
+import { exec } from "node:child_process";
+import { promisify } from "node:util";
 import { mkdtemp, mkdir, writeFile } from "node:fs/promises";
 import { formatRecommendations, loadRecommendations, recommendModels, detectRuntimeEnvironment } from "../src/index.js";
 import { createCliReporter, formatModelResults, formatProfileBlock, formatStatusMessage, formatHelpMenu } from "../src/cli-ui.js";
@@ -763,4 +765,14 @@ test("createCliReporter.printHelp outputs JSON structure in jsonMode", () => {
   assert.equal(parsed.usage, "llmfit [command] [options]");
   assert.ok(parsed.commands.check);
   assert.ok(parsed.options["--json"]);
+});
+
+const execAsync = promisify(exec);
+
+test("cli binary check --static runs successfully", async () => {
+  const cliPath = path.resolve("bin/llmfit.js");
+  const { stdout, stderr } = await execAsync(`node "${cliPath}" check --static`);
+
+  assert.match(stdout, /LLMFit local model check/);
+  assert.match(stdout, /Platform:/);
 });
