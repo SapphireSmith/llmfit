@@ -17,58 +17,55 @@ if (hasHelpFlag) {
 const command = args[0] ?? "check";
 
 if (!["check", "run"].includes(command)) {
-  console.error(`Unknown command "${command}". Use "llmfit check" or "llmfit run".`);
+  console.error(`Unknown command "${command}". Use "llmfit check".`);
   process.exit(1);
 }
 
+if (command === "run") {
+  console.warn(`[Warning] The "run" command is deprecated. Please use "check" or run "llmfit" without arguments.`);
+}
+
+const hasStaticFlag = args.includes("--static") || args.includes("--no-interactive");
+
 try {
-  if (command === "run") {
-    const profile = getSystemProfile();
-    profile.gpus = await detectGpus({ platform: profile.platform });
+  const useInteractive = !hasJsonFlag && !hasStaticFlag;
+
+  const profile = getSystemProfile();
+  profile.gpus = await detectGpus({ platform: profile.platform });
+
+  if (useInteractive) {
     reporter.printIntro(profile);
+  }
 
-    const { registryInfo, recommendations } = await loadRecommendations({
-      profile,
-      registryOptions: {
-        onStatus(status) {
-          if (status.type.endsWith("-ready")) {
-            reporter.finishStatus(status);
-            return;
-          }
-
-          reporter.startStatus(status);
+  const { registryInfo, recommendations } = await loadRecommendations({
+    profile,
+    registryOptions: {
+      onStatus(status) {
+        if (!useInteractive) return;
+        if (status.type.endsWith("-ready")) {
+          reporter.finishStatus(status);
+          return;
         }
-      }
-    });
 
-    if (hasJsonFlag) {
-      const output = {
-        profile,
-        registry: {
-          source: registryInfo.source,
-          fetchedAt: registryInfo.fetchedAt
-        },
-        recommendations
-      };
-      console.log(JSON.stringify(output, null, 2));
-    } else {
-      reporter.printResults(profile, recommendations, registryInfo);
+        reporter.startStatus(status);
+      }
     }
+  });
+
+  if (hasJsonFlag) {
+    const output = {
+      profile,
+      registry: {
+        source: registryInfo.source,
+        fetchedAt: registryInfo.fetchedAt
+      },
+      recommendations
+    };
+    console.log(JSON.stringify(output, null, 2));
+  } else if (useInteractive) {
+    reporter.printResults(profile, recommendations, registryInfo);
   } else {
-    const { profile, registryInfo, recommendations } = await loadRecommendations();
-    if (hasJsonFlag) {
-      const output = {
-        profile,
-        registry: {
-          source: registryInfo.source,
-          fetchedAt: registryInfo.fetchedAt
-        },
-        recommendations
-      };
-      console.log(JSON.stringify(output, null, 2));
-    } else {
-      console.log(formatRecommendations(profile, recommendations, registryInfo));
-    }
+    console.log(formatRecommendations(profile, recommendations, registryInfo));
   }
 } catch (error) {
   reporter.printError(`Unable to load model recommendations: ${error.message}`);

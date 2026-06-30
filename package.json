@@ -13,8 +13,7 @@
     "README.md"
   ],
   "scripts": {
-    "check": "node ./bin/llmfit.js check",
-    "run": "node ./bin/llmfit.js run",
+    "check": "node ./bin/llmfit.js",
     "test": "node --test"
   },
   "keywords": [
